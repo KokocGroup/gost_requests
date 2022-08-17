@@ -64,4 +64,6 @@ def make_gost_request(data: GostRequestSchema):
 
     s.mount('https://somegostsite', GOSTAdapter())
     r = s.request(method=method, url=url, data=body, headers=headers, files=files)
-    return r.text
+    result = r.text
+    s.close()
+    return result
