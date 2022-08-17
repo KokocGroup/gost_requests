@@ -1,0 +1,12 @@
+version: '3.7'
+
+services:
+  api:
+    container_name: gost_requests
+
+    build: .
+    restart: always
+    ports:
+      - 8080:8080
+    expose:
+      - 8080
