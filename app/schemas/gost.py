@@ -1,5 +1,12 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, List, Union
+
+
+class FileSchema(BaseModel):
+    file_name: str
+    file_string: str
+    ext: Optional[str]
+    param: str
 
 
 class GostRequestSchema(BaseModel):
@@ -10,5 +17,6 @@ class GostRequestSchema(BaseModel):
     cert: Optional[str]
     cert_key: Optional[str]
     method: str
-    files: Optional[List[str]]
+    files: Optional[List[FileSchema]]
+    timeout: int = Field(default=30)
 

@@ -1,7 +1,10 @@
 import base64
 import requests
+import traceback
+from io import BytesIO
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.ssl_ import create_urllib3_context
+from fastapi import HTTPException
 from ..schemas.gost import GostRequestSchema
 
 CIPHERS = (
@@ -42,6 +45,7 @@ def make_gost_request(data: GostRequestSchema):
     cert_key = data.cert_key
     method = data.method.upper()
     files = data.files
+    timeout = data.timeout
 
     s = requests.Session()
 
@@ -59,11 +63,22 @@ def make_gost_request(data: GostRequestSchema):
             s.cert = cert
 
     if files:
-        files = list(map(base64.b64decode, files))
-        files = [('file', i) for i in files]
+        files = {file.param: (file.file_name, BytesIO(base64.b64decode(file.file_string)), file.ext) for file in files}
 
-    s.mount('https://somegostsite', GOSTAdapter())
-    r = s.request(method=method, url=url, data=body, headers=headers, files=files)
-    result = r.text
-    s.close()
-    return result
+    s.mount(url, GOSTAdapter())
+    try:
+        r = s.request(method=method, url=url, data=body, headers=headers, files=files, timeout=timeout)
+        status_code = r.status_code
+        result = r.text
+        s.close()
+        return {
+            'status': status_code,
+            'result': result
+        }
+    except requests.exceptions.ConnectTimeout:
+        raise HTTPException(status_code=400, detail='Connection timeout')
+    except requests.exceptions.ConnectionError:
+        raise HTTPException(status_code=400, detail=f'No route to host {url}')
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=repr(e))
+
