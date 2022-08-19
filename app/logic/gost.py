@@ -1,7 +1,9 @@
 import base64
 import requests
-import traceback
+import os
+from fastapi.logger import logger
 from io import BytesIO
+from tempfile import NamedTemporaryFile
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.ssl_ import create_urllib3_context
 from fastapi import HTTPException
@@ -51,34 +53,56 @@ def make_gost_request(data: GostRequestSchema):
 
     if verify is not None:
         if isinstance(verify, str):
-            verify = base64.b64decode(verify).decode()
-        s.verify = verify
+            verify = base64.b64decode(verify)
+            verify_file = NamedTemporaryFile(dir='/tmp', delete=False)
+            verify_file.write(verify)
+            verify_path = verify_file.name
+            verify_file.close()
+            s.verify = verify_path
+        else:
+            s.verify = verify
 
     if cert:
-        cert = base64.b64decode(data.cert).decode()
+        cert = base64.b64decode(data.cert)
+        cert_file = NamedTemporaryFile(dir='/tmp', delete=False)
+        cert_file.write(cert)
+        cert_path = cert_file.name
+        cert_file.close()
         if cert_key:
-            cert_key = base64.b64decode(data.cert_key).decode()
-            s.cert = (cert, cert_key)
+            cert_key = base64.b64decode(data.cert_key)
+            cert_key_file = NamedTemporaryFile(dir='/tmp', delete=False)
+            cert_key_file.write(cert_key)
+            cert_key_path = cert_key_file.name
+            cert_key_file.close()
+            s.cert = (cert_path, cert_key_path)
         else:
-            s.cert = cert
+            logger.error(cert_path)
+            s.cert = cert_path
 
     if files:
         files = {file.param: (file.file_name, BytesIO(base64.b64decode(file.file_string)), file.ext) for file in files}
 
     s.mount(url, GOSTAdapter())
-    try:
-        r = s.request(method=method, url=url, data=body, headers=headers, files=files, timeout=timeout)
-        status_code = r.status_code
-        result = r.text
-        s.close()
-        return {
-            'status': status_code,
-            'result': result
-        }
-    except requests.exceptions.ConnectTimeout:
-        raise HTTPException(status_code=400, detail='Connection timeout')
-    except requests.exceptions.ConnectionError:
-        raise HTTPException(status_code=400, detail=f'No route to host {url}')
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=repr(e))
+    # try:
+    r = s.request(method=method, url=url, data=body, headers=headers, files=files, timeout=timeout)
+    status_code = r.status_code
+    result = r.text
+    s.close()
+    if verify is not None:
+        if isinstance(verify, str):
+            os.remove(verify_path)
+    if cert is not None:
+        os.remove(cert_path)
+    if cert_key is not None:
+        os.remove(cert_key_path)
+    return {
+        'status': status_code,
+        'result': result
+    }
+    # except requests.exceptions.ConnectTimeout:
+    #     raise HTTPException(status_code=400, detail='Connection timeout')
+    # # except requests.exceptions.ConnectionError:
+    # #     raise HTTPException(status_code=400, detail=f'No route to host {url}')
+    # except Exception as e:
+    #     raise HTTPException(status_code=500, detail=repr(e))
 

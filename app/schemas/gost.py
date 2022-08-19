@@ -12,7 +12,7 @@ class FileSchema(BaseModel):
 class GostRequestSchema(BaseModel):
     url: str
     headers: Optional[dict]
-    body: Optional[dict]
+    body: Optional[str]
     verify: Optional[Union[bool, str]]
     cert: Optional[str]
     cert_key: Optional[str]
