@@ -10,12 +10,3 @@ services:
       - 8000:8000
     expose:
       - 8000
-
-  nginx:
-    image: erangaeb/senznginx:0.4
-    container_name: nginx
-    ports:
-      - 80:80
-      - 443:443
-    links:
-      - api
