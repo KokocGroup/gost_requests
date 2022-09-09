@@ -1,5 +1,24 @@
 FROM rnix/openssl-gost:latest
 # Убрал --enable-optimizations по умолчанию
+
+ADD dist /tmp/src
+RUN cd /tmp/src && \
+    tar -xf linux-amd64_deb.tgz && \
+    linux-amd64_deb/install.sh && \
+    # делаем симлинки
+    cd /bin && \
+    ln -s /opt/cprocsp/bin/amd64/certmgr && \
+    ln -s /opt/cprocsp/bin/amd64/cpverify && \
+    ln -s /opt/cprocsp/bin/amd64/cryptcp && \
+    ln -s /opt/cprocsp/bin/amd64/csptest && \
+    ln -s /opt/cprocsp/bin/amd64/csptestf && \
+    ln -s /opt/cprocsp/bin/amd64/der2xer && \
+    ln -s /opt/cprocsp/bin/amd64/inittst && \
+    ln -s /opt/cprocsp/bin/amd64/wipefile && \
+    ln -s /opt/cprocsp/sbin/amd64/cpconfig && \
+    # прибираемся
+    rm -rf /tmp/src
+
 ARG python_optimizations
 
 RUN apt-get update \
