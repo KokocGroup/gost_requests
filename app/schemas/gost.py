@@ -25,5 +25,8 @@ class NbkiRequestSchema(BaseModel):
     url: str
     method: str
     xml_file: str
+    headers: dict = {'Content-Type': 'text/xml'}
+    timeout: int = Field(default=120)
+    max_time: int = Field(default=120)
 
 

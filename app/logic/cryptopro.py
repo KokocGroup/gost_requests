@@ -1,11 +1,9 @@
 import base64
-import requests
-import os
 import subprocess
-from fastapi.logger import logger
-from io import BytesIO
 from tempfile import NamedTemporaryFile
+from bs4 import BeautifulSoup
 from ..schemas.gost import NbkiRequestSchema
+from ..settings import settings
 
 
 class CryptoProRequester:
@@ -22,8 +20,19 @@ class CryptoProRequester:
         xml_file.write(xml)
         xml_file_path = xml_file.name
 
-        r = subprocess.run(f'/opt/cprocsp/bin/amd64/curl -X {method} -o - {url}  -E d6b6e0364b4229c2e1891cbe6e57e444e1d1cdb6 --connect-timeout 120 --max-time 120 -d {xml_file_path} -H "Content-Type: text/xml; charset=windows-1251;"', shell=True, capture_output=True)
-        return r.stdout
+        connect_timeout = data.timeout
+        max_time = data.max_time
+
+        headers = data.headers
+        headers = ' '.join([f'{i}: {j};' for i, j in headers.items()])
+
+        response = str(subprocess.run(f'{settings.PATH_TO_CRYPTOPRO_CUR} -X {method} -o - {url}  -E {settings.CERTIFICATE_SHA1_THUMBPINT} --connect-timeout {connect_timeout} --max-time {max_time} -d {xml_file_path} -H "{headers} charset=windows-1251;"', shell=True, capture_output=True).stdout)
+        soup = BeautifulSoup(response, 'lxml')
+        result = soup.find('product')
+        if result is not None:
+            result = '<?xml version="1.0" encoding="windows-1251"?>' + result
+            return result
+        return False
 
 
 crypto_pro_requester = CryptoProRequester()
