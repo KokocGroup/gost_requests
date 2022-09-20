@@ -61,4 +61,4 @@ RUN cd /tmp/src && \
 WORKDIR /code
 COPY ./app /code/app
 
-CMD ["uvicorn", "app.start:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["uvicorn", "app.start:app", "--host", "0.0.0.0", "--port", "8000"]
