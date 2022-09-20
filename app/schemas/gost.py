@@ -20,3 +20,10 @@ class GostRequestSchema(BaseModel):
     files: Optional[List[FileSchema]]
     timeout: int = Field(default=30)
 
+
+class NbkiRequestSchema(BaseModel):
+    url: str
+    method: str
+    xml_file: str
+
+
