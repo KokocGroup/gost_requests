@@ -17,8 +17,8 @@ class CryptoProRequester:
         url = data.url
         method = data.method.upper()
 
-        xml = base64.b64decode(data.xml_file)
-        xml_file = NamedTemporaryFile(dir='/tmp', delete=False)
+        xml = base64.b64decode(data.xml_file).decode(encoding='WINDOWS-1251')
+        xml_file = NamedTemporaryFile(mode='w+t', dir='/tmp', delete=False, suffix='.xml', encoding='WINDOWS-1251')
         xml_file.write(xml)
         xml_file_path = xml_file.name
 
@@ -29,8 +29,8 @@ class CryptoProRequester:
         headers = ' '.join([f'{i}: {j};' for i, j in headers.items()])
 
         response = str(subprocess.run(f'{settings.PATH_TO_CRYPTOPRO_CURL} -X{method} -o - -H "{headers} charset=windows-1251;" --upload-file {xml_file_path} -E {settings.CERTIFICATE_SHA1_THUMBPINT} --connect-timeout {connect_timeout} --max-time {max_time} {url}', shell=True, capture_output=True).stdout)
+        logger.warning(f'{settings.PATH_TO_CRYPTOPRO_CURL} -X{method} -o - -H "{headers} charset=windows-1251;" --upload-file {xml_file_path} -E {settings.CERTIFICATE_SHA1_THUMBPINT} --connect-timeout {connect_timeout} --max-time {max_time} {url}')
 
-        os.remove(xml_file_path)
 
         soup = BeautifulSoup(response, 'lxml')
         result = soup.find('product')

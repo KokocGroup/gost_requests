@@ -20,7 +20,7 @@ docker exec -it CONTAINER_ID /bin/sh
 
 Перейти в директорию /tmp/src
 ```
-cd tmp/src
+cd /tmp/src
 ```
 
 Выполнить установку сертификатов следующей последовательностью команд. 
