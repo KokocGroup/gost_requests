@@ -28,13 +28,13 @@ class CryptoProRequester:
         headers = data.headers
         headers = ' '.join([f'{i}: {j};' for i, j in headers.items()])
 
-        response = str(subprocess.run(f'{settings.PATH_TO_CRYPTOPRO_CURL} -X {method} -o - {url}  -E {settings.CERTIFICATE_SHA1_THUMBPINT} --connect-timeout {connect_timeout} --max-time {max_time} -d {xml_file_path} -H "{headers} charset=windows-1251;"', shell=True, capture_output=True).stdout)
-        logger.warning(f'{settings.PATH_TO_CRYPTOPRO_CURL} -X {method} -o - {url}  -E {settings.CERTIFICATE_SHA1_THUMBPINT} --connect-timeout {connect_timeout} --max-time {max_time} -d {xml_file_path} -H "{headers} charset=windows-1251;"')
+        response = str(subprocess.run(f'{settings.PATH_TO_CRYPTOPRO_CURL} -X{method} -o - -H "{headers} charset=windows-1251;" --upload-file {xml_file_path} -E {settings.CERTIFICATE_SHA1_THUMBPINT} --connect-timeout {connect_timeout} --max-time {max_time} {url}', shell=True, capture_output=True).stdout)
 
         os.remove(xml_file_path)
 
         soup = BeautifulSoup(response, 'lxml')
         result = soup.find('product')
+
         if result is not None:
             result = '<?xml version="1.0" encoding="windows-1251"?>' + str(result)
             return result
