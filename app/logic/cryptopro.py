@@ -17,8 +17,8 @@ class CryptoProRequester:
         url = data.url
         method = data.method.upper()
 
-        xml = base64.b64decode(data.xml_file).decode(encoding='WINDOWS-1251')
-        xml_file = NamedTemporaryFile(mode='w+t', dir='/tmp', delete=False, suffix='.xml', encoding='WINDOWS-1251')
+        xml = base64.b64decode(data.xml_file).decode(encoding='cp1251')
+        xml_file = NamedTemporaryFile(mode='w+t', dir='/tmp', delete=False, suffix='.xml', encoding='cp1251')
         xml_file.write(xml)
         xml_file_path = xml_file.name
 
