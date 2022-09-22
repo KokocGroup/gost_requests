@@ -1,7 +1,7 @@
 # gost_requests
 Контейнер для запросов с шифрованием GOST
 
-
+Создать директорию dist
 Поместисть в директорию dist файлы cacer.p7b CMakeLists.txt linux-amd64_deb.tgz Рафинад.cer Рафинад.pfx
 
 Создать файл .env, и написать в нем два параметра:
