@@ -37,6 +37,7 @@ RUN python -c "import ssl; ctx = ssl.SSLContext(ssl.PROTOCOL_TLSv1); \
     ctx.set_ciphers('GOST2012-GOST8912-GOST8912')"
 
 COPY ./requirements.txt /code/requirements.txt
+
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 

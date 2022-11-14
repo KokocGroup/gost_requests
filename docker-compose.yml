@@ -12,3 +12,18 @@ services:
       - 8000:8000
     expose:
       - 8000
+    depends_on:
+     - mongodb
+
+  mongodb:
+    container_name: gost_mongodb
+    image: mongo:latest
+    restart: always
+    environment:
+      MONGO_INITDB_DATABASE: nbki
+    ports:
+      - 27017:27017
+    volumes:
+      - ./bd:/data/bd
+
+

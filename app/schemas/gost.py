@@ -30,3 +30,7 @@ class NbkiRequestSchema(BaseModel):
     max_time: int = Field(default=120)
 
 
+class NbkiResultSchema(BaseModel):
+    request_id: str
+
+

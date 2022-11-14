@@ -1,6 +1,6 @@
 import base64
-import os
 import subprocess
+import uuid
 from fastapi.logger import logger
 from tempfile import NamedTemporaryFile
 from bs4 import BeautifulSoup
@@ -27,8 +27,11 @@ class CryptoProRequester:
 
         headers = data.headers
         headers = ' '.join([f'{i}: {j};' for i, j in headers.items()])
+        cmd = f'{settings.PATH_TO_CRYPTOPRO_CURL} -X{method} -o - -H "{headers} charset=windows-1251;" --upload-file {xml_file_path} -E {settings.CERTIFICATE_SHA1_THUMBPINT} --connect-timeout {connect_timeout} --max-time {max_time} {url}'
+        _id = uuid.uuid4()
+        return cmd, xml_file_path, str(_id)
 
-        response = str(subprocess.run(f'{settings.PATH_TO_CRYPTOPRO_CURL} -X{method} -o - -H "{headers} charset=windows-1251;" --upload-file /tmp/src/CPCR_Rquest.xml -E {settings.CERTIFICATE_SHA1_THUMBPINT} --connect-timeout {connect_timeout} --max-time {max_time} {url}', shell=True, capture_output=True).stdout)
+        response = str(subprocess.run(f'{settings.PATH_TO_CRYPTOPRO_CURL} -X{method} -o - -H "{headers} charset=windows-1251;" --upload-file {xml_file_path} -E {settings.CERTIFICATE_SHA1_THUMBPINT} --connect-timeout {connect_timeout} --max-time {max_time} {url}', shell=True, capture_output=True).stdout)
         logger.warning(f'{settings.PATH_TO_CRYPTOPRO_CURL} -X{method} -o - -H "{headers} charset=windows-1251;" --upload-file {xml_file_path} -E {settings.CERTIFICATE_SHA1_THUMBPINT} --connect-timeout {connect_timeout} --max-time {max_time} {url}')
 
 
