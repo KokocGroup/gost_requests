@@ -27,7 +27,7 @@ async def nbki_request(data: NbkiRequestSchema, background_tasks: BackgroundTask
     )
 
 
-@gost_router.post('/nbki_result', status_code=200)
+@gost_router.get('/nbki_result', status_code=200)
 async def nbki_result(request_id: str):
     result = await get_nbki_result(request_id)
     if result:
